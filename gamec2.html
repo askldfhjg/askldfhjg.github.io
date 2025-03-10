@@ -88,6 +88,7 @@
         } else if (gameUrl) {
             gameUrl = base64Decode(gameUrl)
             window.inHistoryCount = window.history.length;
+            window.intoGame();
         } else if (openid) {
             var data = JSON.stringify({
                 "uuid": openid,
