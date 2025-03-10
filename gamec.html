@@ -34,18 +34,18 @@
         function getUrlParameters(query) {
             var urlParams = {};
             var params = new URLSearchParams(query || window.location.search);
-        
-            params.forEach(function(value, key) {
+
+            params.forEach(function (value, key) {
                 value = value.replace(/\ /g, "+")
                 value = decodeURIComponent(value)
                 urlParams[key] = value;
             });
-        
+
             return urlParams;
         }
         function base64Decode(str) {
             const base64Chars =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             let decodedString = '';
             str = str.replace(/[^A-Za-z0-9+/=]/g, '');
 
@@ -54,19 +54,19 @@
             str += '='.repeat(padLength);
 
             for (let i = 0; i < str.length; i += 4) {
-            const char1 = base64Chars.indexOf(str[i]);
-            const char2 = base64Chars.indexOf(str[i + 1]);
-            const char3 = base64Chars.indexOf(str[i + 2]);
-            const char4 = base64Chars.indexOf(str[i + 3]);
+                const char1 = base64Chars.indexOf(str[i]);
+                const char2 = base64Chars.indexOf(str[i + 1]);
+                const char3 = base64Chars.indexOf(str[i + 2]);
+                const char4 = base64Chars.indexOf(str[i + 3]);
 
-            const byte1 = (char1 << 2) | (char2 >> 4);
-            const byte2 = ((char2 & 15) << 4) | (char3 >> 2);
-            const byte3 = ((char3 & 3) << 6) | char4;
+                const byte1 = (char1 << 2) | (char2 >> 4);
+                const byte2 = ((char2 & 15) << 4) | (char3 >> 2);
+                const byte3 = ((char3 & 3) << 6) | char4;
 
-            decodedString +=
-                String.fromCharCode(byte1) +
-                (char3 !== 64 ? String.fromCharCode(byte2) : '') +
-                (char4 !== 64 ? String.fromCharCode(byte3) : '');
+                decodedString +=
+                    String.fromCharCode(byte1) +
+                    (char3 !== 64 ? String.fromCharCode(byte2) : '') +
+                    (char4 !== 64 ? String.fromCharCode(byte3) : '');
             }
 
             return decodedString;
@@ -81,21 +81,26 @@
         var ngType = performance.getEntriesByType("navigation")[0].type;
         console.log("navigation", ngType)
         console.log("window.name", window.name)
-        if(gameUrl) {
+        if (gameUrl) {
             gameUrl = base64Decode(gameUrl)
         }
-        if(window.name) {
-            gameData = window.name
-        }
-        if ((!gameUrl && !gameData) || ngType == "reload") {
-            console.log("rrrtttttt");
-            // const steps = -(window.history.length - 1);
-            // window.sessionStorage.removeItem('__xskill__' + 'gameback');
-            window.history.back();
-        } else {
-            window.name = "";
-            window.inHistoryCount = window.history.length;
-        }
+        window.flagValue = 0;
+        window.intoGame = null;
+        Telegram.WebApp.CloudStorage.getItem('__xskill__' + "gamedata", (err, value) => {
+            gameData = value;
+            if ((!gameUrl && !gameData) || ngType == "reload") {
+                console.log("rrrtttttt");
+                window.history.back();
+            } else {
+                window.name = "";
+                window.inHistoryCount = window.history.length;
+            }
+            window.flagValue++;
+            if (window.flagValue >= 2 && window.intoGame) {
+                window.intoGame();
+            }
+        })
+
     </script>
 </head>
 
@@ -114,50 +119,56 @@
     "></iframe>
     <script>
         function showBack() {
-            Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:true})
+            Telegram.WebView.postEvent("web_app_setup_back_button", false, { is_visible: true })
             Telegram.WebApp.onEvent("backButtonClicked", () => {
                 console.log("rrrttttt11111t");
                 // window.sessionStorage.setItem('__xskill__' + 'gameback', "true");
-                Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:false})
+                Telegram.WebView.postEvent("web_app_setup_back_button", false, { is_visible: false })
                 var cc = 0;
-                if(window.history.length > window.inHistoryCount) {
+                if (window.history.length > window.inHistoryCount) {
                     cc = window.history.length - window.inHistoryCount
                 }
                 // window.opener.postMessage("historyBack", "https://tg-test-xgame.soga.la");
-                window.history.go(-1-cc)
+                window.history.go(-1 - cc)
                 // setInterval(() => {window.history.back();}, 50);
-                
+
             });
         }
         var iframe = document.getElementById('fullscreen-iframe');
-        Telegram.WebApp.onEvent("safeAreaChanged", (a)=>{
+        Telegram.WebApp.onEvent("safeAreaChanged", (a) => {
             console.log("safeAreaChanged", Telegram.WebApp.safeAreaInset)
             var topValue = 0;
-            if(Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.safeAreaInset.top) {
+            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.safeAreaInset.top) {
                 topValue = Telegram.WebApp.safeAreaInset.top;
-                iframe.style.top = topValue+"px";
+                iframe.style.top = topValue + "px";
                 var offset = 0;
-                if(topValue <= 25) {
+                if (topValue <= 25) {
                     offset = topValue;
                 }
-                iframe.style.height = (Telegram.WebApp.viewportStableHeight-Telegram.WebApp.safeAreaInset.bottom-offset)+"px"
+                iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - offset) + "px"
             }
 
         })
-        if(gameUrl) {
-            iframe.src = gameUrl;
-            iframe.onload = ()=>{
-                document.getElementById('loading-animation').style.display = 'none';
+        window.intoGame = () => {
+            if (gameUrl) {
+                iframe.src = gameUrl;
+                iframe.onload = () => {
+                    document.getElementById('loading-animation').style.display = 'none';
+                }
+            } else if (gameData) {
+                iframe.srcdoc = gameData;
+                iframe.onload = () => {
+                    document.getElementById('loading-animation').style.display = 'none';
+                }
             }
-        } else if(gameData) {
-            iframe.srcdoc = gameData;
-            iframe.onload = ()=>{
-                document.getElementById('loading-animation').style.display = 'none';
-            }
+            sessionStorage.removeItem('__xskill__' + 'gameurl');
+            sessionStorage.removeItem('__xskill__' + 'gamedata');
+            showBack();
+        };
+        window.flagValue++;
+        if (window.flagValue >= 2 && window.intoGame) {
+            window.intoGame();
         }
-        sessionStorage.removeItem('__xskill__' + 'gameurl');
-        sessionStorage.removeItem('__xskill__' + 'gamedata');
-        showBack();
     </script>
 </body>
 
