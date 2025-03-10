@@ -28,6 +28,8 @@
             height: auto;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
     <script>
         function getUrlParameters(query) {
             var urlParams = {};
@@ -85,7 +87,7 @@
         if(window.name) {
             gameData = window.name
         }
-        if (!gameUrl && !gameData) {
+        if ((!gameUrl && !gameData) || ngType == "reload") {
             console.log("rrrtttttt");
             // const steps = -(window.history.length - 1);
             // window.sessionStorage.removeItem('__xskill__' + 'gameback');
