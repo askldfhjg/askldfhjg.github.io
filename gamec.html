@@ -80,6 +80,9 @@
         if(gameData) {
             gameData = base64Decode(query["gamedata"])
         }
+        var ngType = performance.getEntriesByType("navigation")[0].type;
+        console.log("navigation", ngType)
+        console.log("window.name", window.name)
         if (!gameUrl && !gameData) {
             console.log("rrrtttttt");
             // const steps = -(window.history.length - 1);
