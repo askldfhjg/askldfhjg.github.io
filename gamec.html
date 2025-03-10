@@ -83,7 +83,7 @@
             gameUrl = base64Decode(gameUrl)
         }
         if(window.name) {
-            gameData = base64Decode(window.name)
+            gameData = window.name
         }
         if (!gameUrl && !gameData) {
             console.log("rrrtttttt");
@@ -91,6 +91,7 @@
             // window.sessionStorage.removeItem('__xskill__' + 'gameback');
             window.history.back();
         } else {
+            window.name = "";
             window.inHistoryCount = window.history.length;
         }
     </script>
