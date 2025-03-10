@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <!-- <base href="/"> -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="The best online casino. Play live casino, slot games, sports betting and online 4D lottery with us! Register now!">
+  <link rel="preload" as="image" href="images/logo.gif">
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    #loading-animation {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: #1F2129;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #loading-animation img {
+      width: 15vw;
+      height: auto;
+    }
+
+    #loading-text {
+      margin-top: 20px;
+      font-size: 5vw;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .dot {
+      animation: blink 1.5s infinite step-start;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    @keyframes blink {
+
+      0%,
+      20%,
+      50%,
+      80%,
+      100% {
+        opacity: 1;
+      }
+
+      40% {
+        opacity: 0;
+      }
+
+      60% {
+        opacity: 0;
+      }
+    }
+    #refresh-btn {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      padding: 10px 20px;
+      background-color: #2C313E;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 10000;
+      display: none;
+    }
+    #refresh-btn:hover {
+      background-color: #2C313E;
+    }
+  </style>
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="xGame.Casino">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <!-- <link rel="icon" type="image/png" href="favicon.png" /> -->
+
+  <title>xGame.Casino</title>
+  <script>
+    window.thirdgamback = false;
+    window.addEventListener("message", (event) => {
+      console.log("message", event);
+      // if (event.origin === "https://b.com" && event.data === "historyBack") {
+      //     console.log("用户通过 history.back() 返回");
+      // }
+    });
+    window.addEventListener("pageshow", function(event) {
+        window.thirdgamback = false;
+        if (event.persisted) {
+            console.log("A 页面返回到 B 页面（bfcache 命中）");
+            if(window.gameBackcb) {
+              console.log("A 页面返回到 B 页面（bfcache 命中）gameBackcb");
+              setTimeout(() => {
+                window.gameBackcb();
+              }, 300);
+              
+            }
+        } else {
+            console.log("A 页面返回到 B 页面（正常回退）");
+            var gameback = window.sessionStorage.getItem('__xskill__' + 'gameback');
+            if(gameback && gameback == "true") {
+              window.thirdgamback = true;
+            }
+        }
+        window.sessionStorage.removeItem('__xskill__' + 'gameback');
+    });
+    function urlSafeDecode(urlencoded) {
+        try {
+            urlencoded = urlencoded.replace(/\+/g, "%20");
+            return decodeURIComponent(urlencoded)
+        } catch (e) {
+            return urlencoded
+        }
+    }
+    function urlParseQueryString(queryString) {
+        var params = {};
+        if (!queryString.length) {
+            return params
+        }
+        var queryStringParams = queryString.split("&");
+        var i, param, paramName, paramValue;
+        for (i = 0; i < queryStringParams.length; i++) {
+            param = queryStringParams[i].split("=");
+            paramName = urlSafeDecode(param[0]);
+            paramValue = param[1] == null ? null : urlSafeDecode(param[1]);
+            params[paramName] = paramValue
+        }
+        return params
+    }
+    function urlParseHashParams(locationHash) {
+      locationHash = locationHash.replace(/^#/, '');
+      var params = {};
+      if (!locationHash.length) {
+        return params;
+      }
+      if (locationHash.indexOf('=') < 0 && locationHash.indexOf('?') < 0) {
+        params._path = urlSafeDecode(locationHash);
+        return params;
+      }
+      var qIndex = locationHash.indexOf('?');
+      if (qIndex >= 0) {
+        var pathParam = locationHash.substr(0, qIndex);
+        params._path = urlSafeDecode(pathParam);
+        locationHash = locationHash.substr(qIndex + 1);
+      }
+      var query_params = urlParseQueryString(locationHash);
+      for (var k in query_params) {
+        params[k] = query_params[k];
+      }
+      return params;
+    }
+    function sessionStorageGet(key) {
+      try {
+        return JSON.parse(window.sessionStorage.getItem('__telegram__' + key));
+      } catch (e) { }
+      return null;
+    }
+    var isinTg = false;
+    window.showwallet = false;
+    // 检查当前路径是否与初始路由不同
+    var initialRoute = '/initialRoute';
+    if (window.location.pathname !== initialRoute) {
+      // 获取当前的查询参数和哈希参数
+      var searchParams = window.location.search;
+      var hashParams = window.location.hash;
+      // 构建新的URL
+      var newUrl = initialRoute + searchParams + hashParams;
+      // 重定向到新的URL
+      window.location.replace(newUrl);
+    } else {
+      var userAgent = window.navigator.userAgent;
+      var isios = userAgent.indexOf('iPhone') >= 0 ||
+          userAgent.indexOf('iPad') >= 0||
+          userAgent.indexOf('iPod') >= 0;
+      var isIframe = (window.parent != null && window != window.parent);
+      if (window.TelegramWebviewProxy !== undefined && !isios) {
+        isinTg = true;
+      }
+      else if (window.external && 'notify' in window.external) {
+        isinTg = true;
+      }
+      var locationHash = '';
+      try {
+        locationHash = location.hash.toString();
+      } catch (e) { }
+      if (!isinTg) {
+        var initParams = urlParseHashParams(locationHash);
+        var storedParams = sessionStorageGet('initParams');
+        if (storedParams) {
+          for (var key in storedParams) {
+            if (typeof initParams[key] === 'undefined') {
+              initParams[key] = storedParams[key];
+            }
+          }
+        }
+        if (initParams && initParams["tgWebAppData"]) {
+          console.log("3333333333");
+          isinTg = true;
+        }
+      }
+      if (isinTg) {
+        window.showwallet = true;
+        const script1 = document.createElement("script");
+        script1.src = "telegram-web-app.min.js";
+        script1.async = false;
+        document.head.appendChild(script1);
+      } else {
+        window.openOld = window.open;
+        window.open = (url, options, feature) => {
+          if(window.XSkill && XSkill.postMessage) {
+            var obj = {action: "openUrl", url: window.base64Encode(url)};
+            XSkill.postMessage(JSON.stringify(obj));
+          } else {
+            window.openOld(url, options, feature);
+          }
+        };
+        window.Telegram = {
+          WebApp: {
+            platform: "unknown",
+            openTelegramLink: (url, options) => {
+              window.open(url, "_blank")
+            },
+            openInvoice: (url, callback) => {
+              window.open(url, "_blank")
+            },
+            openLink: (url, options) => {
+              window.open(url, "_blank")
+            },
+            downloadFile: (params, callback) => {
+              window.open(params.url, "_blank")
+            },
+            CloudStorage: {
+              getItem: (key, callback) => {
+                var value = window.localStorage.getItem(key)
+                callback(null, value);
+              },
+              setItem: (key, value, callback) => {
+                window.localStorage.setItem(key, value)
+                callback(null, true);
+              },
+            }
+          },
+        };
+      }
+
+      const script2 = document.createElement("script");
+      script2.src = "channel.v24.js";
+      script2.async = false;
+      script2.onload = function () {
+        const script3 = document.createElement("script");
+        script3.src = "flutter_bootstrap.js";
+        document.head.appendChild(script3);
+        if (window.showwallet) {
+          const script1 = document.createElement("script");
+            script1.src = "tonconnect-ui.min.js";
+            script1.async = false;
+            document.head.appendChild(script1);
+            const script2 = document.createElement("script");
+            script2.src = "tonconnect.js";
+            script2.async = false;
+            document.head.appendChild(script2);
+        }
+      };
+      document.head.appendChild(script2);
+
+    }
+
+    function clearAllCache() {
+      var allC = 0;
+      var finishCb = function() {
+        if(allC < 3) {
+          return;
+        }
+        window.location.reload();
+      }
+      if ('caches' in window) {
+        caches.delete('flutter-app-cache').then(success => {
+          if (success) {
+            console.log('flutter-app-cache 指定缓存已清除');
+          } else {
+            console.log('flutter-app-cache 缓存清除失败');
+          }
+          allC++;
+          finishCb();
+        });
+        caches.delete('flutter-app-manifest').then(success => {
+          if (success) {
+            console.log('flutter-app-manifest 指定缓存已清除');
+          } else {
+            console.log('flutter-app-manifest 缓存清除失败');
+          }
+          allC++;
+          finishCb();
+        });
+      } else {
+        allC += 2;
+        finishCb();
+      }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => {
+            registration.unregister().then(success => {
+              if (success) {
+                console.log('Service Worker 已成功注销');
+              } else {
+                console.log('Service Worker 注销失败');
+              }
+              allC += 1;
+              finishCb();
+            });
+          });
+        });
+      } else {
+        allC += 1;
+        finishCb();
+      }
+    }
+  </script>
+  <script>
+    var xskillRunningContext = {
+      boot_time: Date.now()
+    };
+  </script>
+  <script type="application/javascript" src="assets/packages/flutter_inappwebview_web/assets/web/web_support.js" defer></script>
+  <noscript id="fbnoscript"></noscript>
+</head>
+
+<body>
+  <div id="loading-animation">
+    <img src="images/logo.gif" alt="Loading...">
+    <div id="loading-text">
+      Loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+  </div>
+  <button id="refresh-btn" onclick="clearAllCache()">Reload</button>
+  <script>
+    // fullscreen();
+    var flutterHotReloadCnt = 0;
+    var flutterBootParams = {};
+    var tgWebAppStartParamType = 1;
+
+    var originUrl = window.location.href;
+    console.log("index url: ", originUrl);
+
+
+    // 解析url参数
+    function parseUrlParams() {
+      var urlParams = {};
+      var params = new URLSearchParams(window.location.search);
+
+      params.forEach(function (value, key) {
+        value = value.replace(/\ /g, "+")
+        value = decodeURIComponent(value)
+        urlParams[key] = value;
+      });
+
+      return urlParams;
+    }
+
+    var hideLoadingAnim = function () {
+      var loadingAnimation = document.getElementById('loading-animation');
+      loadingAnimation.style.display = 'none';
+      var refreshbtn = document.getElementById('refresh-btn');
+      refreshbtn.style.display = 'none';
+    }
+
+    setTimeout(function() {
+      var refreshbtn = document.getElementById('refresh-btn');
+      // 只有当loading动画还在显示时才显示刷新按钮
+      if (refreshbtn.style.display !== 'none') {
+        refreshbtn.style.display = 'block';
+      }
+    }, 20000);
+    // window.onload = () => {
+    //   xskillRunningContext['html_onload_time'] = Date.now();
+    //   console.log('html load escape', xskillRunningContext['html_onload_time'] - xskillRunningContext['boot_time']);
+
+    //   console.log("config ldm: ", window.luckyTwaSdk);
+    // }
+
+    flutterBootParams = parseUrlParams();
+    console.log("index flutterBootParams: ", flutterBootParams);
+  </script>
+</body>
+
+</html>

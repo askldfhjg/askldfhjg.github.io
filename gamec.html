@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+            background: #1F2129;
+        }
+
+        #loading-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #1F2129;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loading-animation img {
+            width: 15vw;
+            height: auto;
+        }
+    </style>
+    <script>
+        function getUrlParameters(query) {
+            var urlParams = {};
+            var params = new URLSearchParams(query || window.location.search);
+        
+            params.forEach(function(value, key) {
+                value = value.replace(/\ /g, "+")
+                value = decodeURIComponent(value)
+                urlParams[key] = value;
+            });
+        
+            return urlParams;
+        }
+        function base64Decode(str) {
+            const base64Chars =
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let decodedString = '';
+            str = str.replace(/[^A-Za-z0-9+/=]/g, '');
+
+            // 新增长度补齐逻辑
+            const padLength = (4 - (str.length % 4)) % 4;
+            str += '='.repeat(padLength);
+
+            for (let i = 0; i < str.length; i += 4) {
+            const char1 = base64Chars.indexOf(str[i]);
+            const char2 = base64Chars.indexOf(str[i + 1]);
+            const char3 = base64Chars.indexOf(str[i + 2]);
+            const char4 = base64Chars.indexOf(str[i + 3]);
+
+            const byte1 = (char1 << 2) | (char2 >> 4);
+            const byte2 = ((char2 & 15) << 4) | (char3 >> 2);
+            const byte3 = ((char3 & 3) << 6) | char4;
+
+            decodedString +=
+                String.fromCharCode(byte1) +
+                (char3 !== 64 ? String.fromCharCode(byte2) : '') +
+                (char4 !== 64 ? String.fromCharCode(byte3) : '');
+            }
+
+            return decodedString;
+        }
+        // var gameUrl = sessionStorage.getItem('__xskill__' + 'gameurl');
+        // var gameData = sessionStorage.getItem('__xskill__' + 'gamedata');
+        var query = window.getUrlParameters();
+        var gameUrl = query["gameurl"];
+        var gameData = query["gamedata"];
+        console.log(gameUrl);
+        console.log(gameData);
+        gameUrl = base64Decode(query["gameurl"])
+        if(gameData) {
+            gameData = base64Decode(query["gamedata"])
+        }
+        if (!gameUrl && !gameData) {
+            console.log("rrrtttttt");
+            // const steps = -(window.history.length - 1);
+            window.sessionStorage.removeItem('__xskill__' + 'gameback');
+            window.history.back();
+        } else {
+            window.inHistoryCount = window.history.length;
+        }
+    </script>
+</head>
+
+<body>
+    <div id="loading-animation">
+        <img src="images/logo.gif" alt="Loading...">
+    </div>
+    <script src="telegram-web-app.min.js"></script>
+    <iframe id="fullscreen-iframe" style="
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      border: none;
+    "></iframe>
+    <script>
+        function showBack() {
+            Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:true})
+            Telegram.WebApp.onEvent("backButtonClicked", () => {
+                console.log("rrrttttt11111t");
+                window.sessionStorage.setItem('__xskill__' + 'gameback', "true");
+                Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:false})
+                var cc = 0;
+                if(window.history.length > window.inHistoryCount) {
+                    cc = window.history.length - window.inHistoryCount
+                }
+                window.opener.postMessage("historyBack", "https://tg-test-xgame.soga.la");
+                window.history.go(-1-cc)
+                // setInterval(() => {window.history.back();}, 50);
+                
+            });
+        }
+        var iframe = document.getElementById('fullscreen-iframe');
+        Telegram.WebApp.onEvent("safeAreaChanged", (a)=>{
+            console.log("safeAreaChanged", Telegram.WebApp.safeAreaInset)
+            var topValue = 0;
+            if(Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.safeAreaInset.top) {
+                topValue = Telegram.WebApp.safeAreaInset.top;
+                iframe.style.top = topValue+"px";
+                var offset = 0;
+                if(topValue <= 25) {
+                    offset = topValue;
+                }
+                iframe.style.height = (Telegram.WebApp.viewportStableHeight-Telegram.WebApp.safeAreaInset.bottom-offset)+"px"
+            }
+
+        })
+        if(gameUrl) {
+            iframe.src = gameUrl;
+            iframe.onload = ()=>{
+                document.getElementById('loading-animation').style.display = 'none';
+            }
+        } else if(gameData) {
+            iframe.srcdoc = gameData;
+            iframe.onload = ()=>{
+                document.getElementById('loading-animation').style.display = 'none';
+            }
+        }
+        sessionStorage.removeItem('__xskill__' + 'gameurl');
+        sessionStorage.removeItem('__xskill__' + 'gamedata');
+        showBack();
+    </script>
+</body>
+
+</html>
