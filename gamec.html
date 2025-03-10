@@ -83,7 +83,7 @@
         if (!gameUrl && !gameData) {
             console.log("rrrtttttt");
             // const steps = -(window.history.length - 1);
-            window.sessionStorage.removeItem('__xskill__' + 'gameback');
+            // window.sessionStorage.removeItem('__xskill__' + 'gameback');
             window.history.back();
         } else {
             window.inHistoryCount = window.history.length;
@@ -109,13 +109,13 @@
             Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:true})
             Telegram.WebApp.onEvent("backButtonClicked", () => {
                 console.log("rrrttttt11111t");
-                window.sessionStorage.setItem('__xskill__' + 'gameback', "true");
+                // window.sessionStorage.setItem('__xskill__' + 'gameback', "true");
                 Telegram.WebView.postEvent("web_app_setup_back_button", false, {is_visible:false})
                 var cc = 0;
                 if(window.history.length > window.inHistoryCount) {
                     cc = window.history.length - window.inHistoryCount
                 }
-                window.opener.postMessage("historyBack", "https://tg-test-xgame.soga.la");
+                // window.opener.postMessage("historyBack", "https://tg-test-xgame.soga.la");
                 window.history.go(-1-cc)
                 // setInterval(() => {window.history.back();}, 50);
                 
