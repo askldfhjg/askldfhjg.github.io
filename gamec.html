@@ -73,16 +73,18 @@
         // var gameData = sessionStorage.getItem('__xskill__' + 'gamedata');
         var query = window.getUrlParameters();
         var gameUrl = query["gameurl"];
-        var gameData = query["gamedata"];
+        // var gameData = query["gamedata"];
         console.log(gameUrl);
-        console.log(gameData);
-        gameUrl = base64Decode(query["gameurl"])
-        if(gameData) {
-            gameData = base64Decode(query["gamedata"])
-        }
+        // console.log(gameData);
         var ngType = performance.getEntriesByType("navigation")[0].type;
         console.log("navigation", ngType)
         console.log("window.name", window.name)
+        if(gameUrl) {
+            gameUrl = base64Decode(gameUrl)
+        }
+        if(window.name) {
+            gameData = base64Decode(window.name)
+        }
         if (!gameUrl && !gameData) {
             console.log("rrrtttttt");
             // const steps = -(window.history.length - 1);
