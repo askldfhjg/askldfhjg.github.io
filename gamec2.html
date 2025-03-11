@@ -89,7 +89,7 @@
             gameUrl = base64Decode(gameUrl)
             window.inHistoryCount = window.history.length;
             window.flagValue++;
-            if(window.flagValue >= 2 && window.intoGame) {
+            if (window.flagValue >= 2 && window.intoGame) {
                 window.intoGame();
             }
         } else if (openid) {
@@ -98,6 +98,19 @@
                 "key": "gamedata"
             });
             var xhr = new XMLHttpRequest();
+            // 错误事件处理（网络层错误）
+            xhr.addEventListener("error", function () {
+                console.log("网络请求失败");
+                window.history.back();
+                xhr = null; // 标记请求已处理
+            });
+
+            // 中止事件处理
+            xhr.addEventListener("abort", function () {
+                console.log("请求被中止");
+                window.history.back();
+                xhr = null;
+            });
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     try {
@@ -106,20 +119,17 @@
                         console.log("readystatechange error", error);
                         window.history.back();
                     }
-                    if(obj["value"]) {
+                    if (obj["value"]) {
                         gameData = obj["value"];
                         window.inHistoryCount = window.history.length;
                         window.flagValue++;
-                        if(window.flagValue >= 2 && window.intoGame) {
+                        if (window.flagValue >= 2 && window.intoGame) {
                             window.intoGame();
                         }
                     } else {
                         console.log("rrrtttttt empty");
                         window.history.back();
                     }
-                } else {
-                    console.log("rrrtttttt");
-                    // window.history.back();
                 }
             });
             xhr.open("POST", "https://igaoshou.xskill.io/mcbeam-game-center-srv/store/getTemporary");
@@ -176,12 +186,12 @@
             }
 
         })
-        window.intoGame = () =>{
+        window.intoGame = () => {
             if (gameUrl) {
-            iframe.src = gameUrl;
-            iframe.onload = () => {
-                document.getElementById('loading-animation').style.display = 'none';
-            }
+                iframe.src = gameUrl;
+                iframe.onload = () => {
+                    document.getElementById('loading-animation').style.display = 'none';
+                }
             } else if (gameData) {
                 iframe.srcdoc = gameData;
                 iframe.onload = () => {
@@ -193,7 +203,7 @@
             showBack();
         };
         window.flagValue++;
-        if(window.flagValue >= 2 && window.intoGame) {
+        if (window.flagValue >= 2 && window.intoGame) {
             window.intoGame();
         }
     </script>
