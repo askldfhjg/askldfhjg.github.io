@@ -173,7 +173,7 @@
 
             // 构造签名字符串
             const signStr = `${timestamp}\n${nonce}\n${sortedParams}\n`;
-            console.debug("url:", fullUrl, "signStr:", signStr);
+            console.debug("signStr:", signStr);
 
             let sign = CryptoJS.HmacSHA256(signStr, userToken).toString();
             const authObj = {
