@@ -76,6 +76,7 @@
         var query = window.getUrlParameters();
         var gameUrl = query["gameurl"];
         var openid = query["openid"];
+        var token = query["token"];
         var gameData = null;
         console.log(gameUrl, openid);
         // console.log(gameData);
@@ -87,6 +88,7 @@
             window.history.back();
         } else if (gameUrl) {
             gameUrl = base64Decode(gameUrl)
+            token = base64Decode(token)
             window.inHistoryCount = window.history.length;
             window.flagValue++;
             if (window.flagValue >= 2 && window.intoGame) {
@@ -145,6 +147,7 @@
     <div id="loading-animation">
         <img src="logo.gif" alt="Loading...">
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha512-a+SUDuwNzXDvz4XrIcXHuCf089/iJAoN4lmrXJg18XnduKK6YlDHNRalv4yd1N40OKI80tFidF+rqTFKGPoWFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <iframe id="fullscreen-iframe" style="
       position: fixed; 
@@ -155,6 +158,67 @@
       border: none;
     "></iframe>
     <script>
+        function sign(param, userToken) {
+            // 计算签名所需的时间戳和随机数
+            const timestamp = Math.floor(Date.now() / 1000).toString();
+            const millisStr = Date.now().toString();
+            const randomDouble = Math.random().toString();
+            const uuid = crypto.randomUUID();
+            const nonce = `${millisStr}${randomDouble}.${uuid}`;
+
+            const sortedParams = Object.entries(param)
+                .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                .map(([key, value]) => `${key}=${value}`)
+                .join('&');
+
+            // 构造签名字符串
+            const signStr = `${timestamp}\n${nonce}\n${sortedParams}\n`;
+            console.debug("url:", fullUrl, "signStr:", signStr);
+
+            let sign = CryptoJS.HmacSHA256(signStr, userToken).toString();
+            const authObj = {
+                sign: sign,
+                ts: timestamp,
+                ns: nonce
+            };
+            return JSON.stringify(authObj);
+        }
+
+        async function gameHeartBeat(apiType, token, openid) {
+            try {
+                const body = {
+                    pn: "com.xgame.casino.xudao2"
+                };
+
+                const url = "https://igaoshou.xskill.io/";
+                const path = `api/mcbeam-third-party-srv/${apiType}/Heartbeat`;
+                const fullUrl = url + path;
+
+                let str = sign(body, token);
+                const response = await fetch(fullUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Token': token,
+                        'Igs-User-Id': openid,
+                        "User-Authorization": str,
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data && Object.keys(data).length > 0 ? data : null;
+
+            } catch (error) {
+                console.error('游戏心跳请求失败:', error);
+                return null;
+            }
+        }
+
         function showBack() {
             Telegram.WebView.postEvent("web_app_setup_back_button", false, { is_visible: true })
             Telegram.WebApp.onEvent("backButtonClicked", () => {
@@ -206,6 +270,11 @@
         if (window.flagValue >= 2 && window.intoGame) {
             window.intoGame();
         }
+
+        setInterval(async () => {
+            let ret = await gameHeartBeat("gmagApi", token, openid);
+            console.log("gameHeartBeat", ret);
+        }, 5 * 60 * 1000);
     </script>
 </body>
 
