@@ -77,6 +77,7 @@
         var gameUrl = query["gameurl"];
         var openid = query["openid"];
         var token = query["token"];
+        var heartbeat = query["heartbeat"];
         var gameData = null;
         console.log(gameUrl, openid);
         // console.log(gameData);
@@ -270,11 +271,12 @@
         if (window.flagValue >= 2 && window.intoGame) {
             window.intoGame();
         }
-
-        setInterval(async () => {
-            let ret = await gameHeartBeat("gmagApi", token, openid);
-            console.log("gameHeartBeat", ret);
-        }, 5 * 60 * 1000);
+        if (heartbeat) {    
+            setInterval(async () => {
+                let ret = await gameHeartBeat("gmagApi", token, openid);
+                console.log("gameHeartBeat", ret);
+            }, 5 * 60 * 1000);
+        }
     </script>
 </body>
 
