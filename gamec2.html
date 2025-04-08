@@ -44,6 +44,7 @@
             return urlParams;
         }
         function base64Decode(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
             const base64Chars =
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             let decodedString = '';
