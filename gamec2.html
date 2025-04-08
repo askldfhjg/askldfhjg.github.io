@@ -240,8 +240,8 @@
         Telegram.WebApp.onEvent("safeAreaChanged", (a) => {
             console.log("safeAreaChanged", Telegram.WebApp.safeAreaInset)
             var topValue = 0;
-            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.safeAreaInset.top) {
-                topValue = Telegram.WebApp.safeAreaInset.top;
+            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset) {
+                topValue = Telegram.WebApp.contentSafeAreaInset.top + Telegram.WebApp.safeAreaInset.top;
                 iframe.style.top = topValue + "px";
                 var offset = 0;
                 if (topValue <= 25) {
