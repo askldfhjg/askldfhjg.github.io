@@ -28,8 +28,8 @@
             height: auto;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script> -->
     <script>
         function getUrlParameters(query) {
             var urlParams = {};
@@ -45,6 +45,7 @@
         }
         function base64Decode(str) {
             str = str.replace(/-/g, '+').replace(/_/g, '/');
+
             const base64Chars =
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
             let decodedString = '';
