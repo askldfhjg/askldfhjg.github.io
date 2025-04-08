@@ -240,16 +240,28 @@
         Telegram.WebApp.onEvent("safeAreaChanged", (a) => {
             console.log("safeAreaChanged", Telegram.WebApp.safeAreaInset)
             var topValue = 0;
-            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset) {
+            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.contentSafeAreaInset) {
                 topValue = Telegram.WebApp.contentSafeAreaInset.top + Telegram.WebApp.safeAreaInset.top;
                 iframe.style.top = topValue + "px";
                 var offset = 0;
                 if (topValue <= 25) {
                     offset = topValue;
                 }
-                iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - Telegram.WebApp.contentSafeAreaInset.top - offset) + "px"
+                iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - Telegram.WebApp.safeAreaInset.top -offset) + "px"
             }
-
+        })
+        Telegram.WebApp.onEvent("contentSafeAreaChanged ", (a) => {
+            console.log("contentSafeAreaChanged ", Telegram.WebApp.safeAreaInset)
+            var topValue = 0;
+            if (Telegram.WebApp && Telegram.WebApp.safeAreaInset && Telegram.WebApp.contentSafeAreaInset) {
+                topValue = Telegram.WebApp.contentSafeAreaInset.top + Telegram.WebApp.safeAreaInset.top;
+                iframe.style.top = topValue + "px";
+                var offset = 0;
+                if (topValue <= 25) {
+                    offset = topValue;
+                }
+                iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - Telegram.WebApp.safeAreaInset.top -offset) + "px"
+            }
         })
         window.intoGame = () => {
             if (gameUrl) {
