@@ -90,12 +90,13 @@
         } else if (gameUrl) {
             gameUrl = base64Decode(gameUrl)
             token = base64Decode(token)
+            console.log(gameUrl, openid);
             window.inHistoryCount = window.history.length;
             window.flagValue++;
             if (window.flagValue >= 2 && window.intoGame) {
                 window.intoGame();
             }
-        } else if (openid) {
+        } else if (openid && !gameUrl) {
             var data = JSON.stringify({
                 "uuid": openid,
                 "key": "gamedata"
