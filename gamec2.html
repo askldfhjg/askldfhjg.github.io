@@ -245,7 +245,7 @@
                 iframe.style.top = topValue + "px";
                 var offset = 0;
                 if (Telegram.WebApp.safeAreaInset.top <= 25) {
-                    offset = Telegram.WebApp.safeAreaInset.top;
+                    offset = topValue
                 }
                 iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - Telegram.WebApp.safeAreaInset.top - offset) + "px"
             }
@@ -258,7 +258,7 @@
                 iframe.style.top = topValue + "px";
                 var offset = 0;
                 if (Telegram.WebApp.safeAreaInset.top <= 25) {
-                    offset = Telegram.WebApp.safeAreaInset.top;
+                    offset = topValue
                 }
                 iframe.style.height = (Telegram.WebApp.viewportStableHeight - Telegram.WebApp.safeAreaInset.bottom - Telegram.WebApp.safeAreaInset.top - offset) + "px"
             }
